@@ -4,23 +4,19 @@ import {
   getOneContact,
   deleteContact,
   createContact,
-  updateContactById,
+  updateContact,
 } from "../controllers/contactsControllers.js";
-
-import ctrlWrapper from "../helpers/ctrlWrapper.js"
-import validateBody from "../helpers/validateBody.js";
-import { createContactSchema, updateContactSchema } from "../schemas/contactsSchemas.js";
 
 const contactsRouter = express.Router();
 
-contactsRouter.get("/", ctrlWrapper(getAllContacts));
+contactsRouter.get("/", getAllContacts);
 
-contactsRouter.get("/:id", ctrlWrapper(getOneContact));
+contactsRouter.get("/:id", getOneContact);
 
-contactsRouter.delete("/:id", ctrlWrapper(deleteContact));
+contactsRouter.delete("/:id", deleteContact);
 
-contactsRouter.post("/", validateBody(createContactSchema), ctrlWrapper(createContact));
+contactsRouter.post("/", createContact);
 
-contactsRouter.put("/:id", validateBody(updateContactSchema), ctrlWrapper(updateContactById));
+contactsRouter.put("/:id", updateContact);
 
 export default contactsRouter;
