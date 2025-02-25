@@ -1,57 +1,31 @@
-import fs from "node:fs/promises";
-import { resolve } from "node:path";
-import { nanoid } from "nanoid";
+import Contacts from "../db/models/contacts.js";
 
-const contactsPath = resolve("db", "contacts.json");
+export const listContacts = () => Contacts.findAll();
 
-export async function listContacts() {
-  const contacts = await fs.readFile(contactsPath, "utf-8");
-    return JSON.parse(contacts);
-};
+export const getContactById = contactId => Contacts.findByPk(contactId);
 
-export async function getContactById(contactId) {
-    const contacts = await listContacts();
-    const result = contacts.find(item => item.id === contactId);
-    return result || null
-};
-
-export async function removeContact(contactId) {
-  const contacts = await listContacts();
-  const index = contacts.findIndex(item => item.id === contactId);
-  if (index === -1) {
-    return null;
+export const removeContact = contactId => Contacts.destroy({
+  where: {
+    id: contactId,
   }
+});
 
-  const [result] = contacts.splice(index, 1);
-  fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
+export const addContact = data => Contacts.create(data);
 
-  return result;
+export const updateContact = async (contactId, data) => {
+  const contact = await getContactById(contactId);
+  if (!contact) return null;
+
+  return contact.update(data, {
+    returning: true,
+  });
 };
 
-export async function addContact(name, email, phone) {
-  const contacts = await listContacts();
-  const newContact = {
-    id: nanoid(),
-    name,
-    email,
-    phone,
-  }
-  contacts.push(newContact);
-  fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
+export const updateStatusContact = async (contactId, body) => { 
+  const contact = await getContactById(contactId);
+  if (!contact) return null;
 
-  return newContact;
+  return contact.update(body, {
+    returning: true,
+  });
 };
-
-export async function updateContact(contactId, data) {
-  const contacts = await listContacts();
-  const index = contacts.findIndex(item => item.id === contactId);
-  if (index === -1) {
-    return null;
-  }
-
-  contacts[index] = { ...contacts[index], ...data };
-
-  fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-
-  return contacts[index];
-}
