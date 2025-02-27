@@ -20,9 +20,13 @@ const Contacts = sequelize.define(
             type: DataTypes.BOOLEAN,
             defaultValue: false,
         },   
+        owner: {
+            type: DataTypes.STRING,
+            defaultValue: null,
+        },
     }
 )
 
-// Contacts.sync()
+// Contacts.sync({ force: true });
 
 export default Contacts;
