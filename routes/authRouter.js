@@ -1,15 +1,21 @@
 import express from "express";
 
-import { login, registerUser } from "../controllers/authControllers.js";
+import { getCurrentUser, login, logout, register, updateSubscription } from "../controllers/authControllers.js";
 import validateBody from "../helpers/validateBody.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
-import { createUserSchema } from "../schemas/authSchemas.js";
+import { createUserSchema, updateSubscriptionSchema } from "../schemas/authSchemas.js";
+import authenticate from "../middlewares/authenticate.js";
 
 const authRouter = express.Router();
 
-authRouter.post("/register", validateBody(createUserSchema), ctrlWrapper(registerUser));
+authRouter.post("/register", validateBody(createUserSchema), ctrlWrapper(register));
 
 authRouter.post("/login", validateBody(createUserSchema), ctrlWrapper(login));
 
+authRouter.post("/logout", authenticate, ctrlWrapper(logout));
+
+authRouter.get("/current", authenticate, ctrlWrapper(getCurrentUser));
+
+authRouter.patch("/subscription", authenticate, validateBody(updateSubscriptionSchema), ctrlWrapper(updateSubscription))
 
 export default authRouter;

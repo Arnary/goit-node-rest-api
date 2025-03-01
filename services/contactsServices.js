@@ -1,19 +1,20 @@
 import Contacts from "../db/models/Contacts.js";
 
-export const listContacts = () => Contacts.findAll();
+export const listContacts = async query => {
+  console.log(query)
+  const { limit, offset, owner } = query;
+  console.log(owner)
+  return await Contacts.findAll({ limit, offset, where: {owner} });
+};
 
-export const getContactById = contactId => Contacts.findByPk(contactId);
+export const getContactById = query => Contacts.findOne({where: query});
 
-export const removeContact = contactId => Contacts.destroy({
-  where: {
-    id: contactId,
-  }
-});
+export const removeContact = query => Contacts.destroy({where: query});
 
 export const addContact = data => Contacts.create(data);
 
-export const updateContact = async (contactId, data) => {
-  const contact = await getContactById(contactId);
+export const updateContact = async (query, data) => {
+  const contact = await getContactById(query);
   if (!contact) return null;
 
   return contact.update(data, {
@@ -21,8 +22,8 @@ export const updateContact = async (contactId, data) => {
   });
 };
 
-export const updateStatusContact = async (contactId, body) => { 
-  const contact = await getContactById(contactId);
+export const updateStatusContact = async (query, body) => { 
+  const contact = await getContactById(query);
   if (!contact) return null;
 
   return contact.update(body, {

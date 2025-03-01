@@ -21,8 +21,8 @@ const Contacts = sequelize.define(
             defaultValue: false,
         },   
         owner: {
-            type: DataTypes.STRING,
-            defaultValue: null,
+            type: DataTypes.INTEGER,
+            allowNull: false,
         },
     }
 )
