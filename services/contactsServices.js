@@ -1,10 +1,11 @@
 import Contacts from "../db/models/Contacts.js";
 
 export const listContacts = async query => {
-  console.log(query)
-  const { limit, offset, owner } = query;
-  console.log(owner)
-  return await Contacts.findAll({ limit, offset, where: {owner} });
+  const { favorite, limit, offset, owner } = query;
+  if (!favorite) {
+    return await Contacts.findAll({ order: ["id"], limit, offset, where: {owner} });
+  }
+  return await Contacts.findAll({ order: ["id"], limit, offset, where: {owner, favorite} });
 };
 
 export const getContactById = query => Contacts.findOne({where: query});

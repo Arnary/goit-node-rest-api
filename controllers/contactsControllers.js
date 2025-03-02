@@ -4,12 +4,12 @@ import getPagination from "../helpers/getPagination.js";
 
 
 export const getAllContacts = async (req, res) => {
-    const { page, limit: size } = req.query;
+    const { favorite, page, limit: size } = req.query;
+    const { id: owner } = req.user;
 
     const { limit, offset } = getPagination(page, size);
 
-    const { id: owner } = req.user;
-    const result = await listContacts({limit, offset, owner});
+    const result = await listContacts({favorite, limit, offset, owner});
 
     res.json(result);
 };
