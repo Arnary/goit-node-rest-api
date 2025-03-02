@@ -22,6 +22,9 @@ const authenticate = async (req, res, next) => {
             return next(HttpError(401, "User not found"));
         }
         req.user = user;
+        if (!user.token) {
+            return next(HttpError(401, "User is not logged in"));
+        }
         next();
     }
     catch (error) {
