@@ -1,8 +1,8 @@
-import { query } from "express";
 import Users from "../db/models/Users.js";
 import HttpError from "../helpers/HttpError.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import gravatar from "gravatar";
 
 const { JWT_SECRET } = process.env;
 
@@ -18,8 +18,9 @@ export const addUser = async data => {
     };
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const avatar = gravatar.url(email);
 
-    const newUser = await Users.create({...data, password: hashedPassword});
+    const newUser = await Users.create({ ...data, password: hashedPassword, avatarURL: avatar});
     return newUser;
 };
 
@@ -68,6 +69,17 @@ export const updateUserSubscription = async (email, data) => {
     };
 
     return user.update(data, {
+        returning: true,
+    })
+}
+
+export const updateUserAvatar = async (email, avatarURL) => {
+    const user = await findUser(email);
+        if (!user) {
+        throw HttpError(401, "Not authorized");
+    };
+
+    return user.update({avatarURL}, {
         returning: true,
     })
 }

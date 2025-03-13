@@ -1,4 +1,8 @@
-import { addUser, getUser, loginUser, logoutUser, updateUserSubscription } from "../services/authServices.js";
+import { addUser, getUser, loginUser, logoutUser, updateUserAvatar, updateUserSubscription } from "../services/authServices.js";
+import fs from "node:fs/promises";
+import path from "node:path";
+
+const avatarsPath = path.resolve("public", "avatars");
 
 export const register = async (req, res) => {
     const result = await addUser(req.body);
@@ -49,5 +53,19 @@ export const updateSubscription = async (req, res) => {
     res.json({
         email: result.email,
         subscription: result.subscription
+    });
+}
+
+export const updateAvatar = async (req, res) => {
+    const { email } = req.user;
+    const { path: oldPath, filename } = req.file;
+    const newPath = path.join(avatarsPath, filename);
+    await fs.rename(oldPath, newPath);
+    const avatar = path.join("avatars", filename);
+
+    const result = await updateUserAvatar({ email }, avatar);
+
+    res.json({
+        avatarURL: result.avatarURL
     });
 }

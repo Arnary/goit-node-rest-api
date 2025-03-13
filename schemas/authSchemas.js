@@ -9,3 +9,7 @@ export const createUserSchema = Joi.object({
 export const updateSubscriptionSchema = Joi.object({
     subscription: Joi.string().required()
 })
+
+export const updateAvatarSchema = Joi.object({
+    avatarURL: Joi.string()
+})
