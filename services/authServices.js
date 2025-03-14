@@ -3,8 +3,10 @@ import HttpError from "../helpers/HttpError.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import gravatar from "gravatar";
+import { nanoid } from "nanoid";
+import sendEmail from "../helpers/sendEmail.js";
 
-const { JWT_SECRET } = process.env;
+const { JWT_SECRET, BASE_URL } = process.env;
 
 export const findUser = query => Users.findOne({
     where: query,
@@ -20,9 +22,47 @@ export const addUser = async data => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const avatar = gravatar.url(email);
 
-    const newUser = await Users.create({ ...data, password: hashedPassword, avatarURL: avatar});
+    const verificationToken = nanoid();
+
+    const newUser = await Users.create({ ...data, password: hashedPassword, avatarURL: avatar, verificationToken });
+    
+    const verifyEmail = {
+        to: email,
+        subject: "Verify email",
+        html: `<a target=_blank href="${BASE_URL}/api/auth/verify/${verificationToken}">Click to verify your email</a>`
+    }
+
+    await sendEmail(verifyEmail);
+
     return newUser;
 };
+
+export const verifyUser = async verificationToken => {
+    const user = await findUser({verificationToken});
+    if (!user) {
+        throw HttpError(404, "User not found")
+    };
+
+    return user.update({ verificationToken: null, verify: true });
+};
+
+export const resendVerifyEmail = async email => {
+    const user = await findUser({ email });
+    if (!user) {
+        throw HttpError(404, "User not found")
+    };
+    if (user.verify) {
+        throw HttpError(400, "Verification has already been passed")
+    }
+
+    const verifyEmail = {
+        to: email,
+        subject: "Verify email",
+        html: `<a target=_blank href="${BASE_URL}/api/auth/verify/${user.verificationToken}">Click to verify your email</a>`
+    }
+
+    await sendEmail(verifyEmail);
+} 
 
 export const loginUser = async data => {
     const { email, password } = data;
@@ -30,6 +70,9 @@ export const loginUser = async data => {
     if (!user) {
         throw HttpError(401, "Email or password is wrong");
     };
+    if (!user.verify) {
+        throw HttpError(401, "Email not verify");
+    }
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) {

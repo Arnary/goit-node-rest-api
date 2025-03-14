@@ -1,15 +1,19 @@
 import express from "express";
 
-import { getCurrentUser, login, logout, register, updateAvatar, updateSubscription } from "../controllers/authControllers.js";
+import { getCurrentUser, login, logout, register, resendVerify, updateAvatar, updateSubscription, verify } from "../controllers/authControllers.js";
 import validateBody from "../helpers/validateBody.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
-import { createUserSchema, updateSubscriptionSchema, updateAvatarSchema } from "../schemas/authSchemas.js";
+import { createUserSchema, updateSubscriptionSchema, updateAvatarSchema, verifyUserSchema } from "../schemas/authSchemas.js";
 import authenticate from "../middlewares/authenticate.js";
 import uploadAvatar from "../middlewares/uploadAvatar.js";
 
 const authRouter = express.Router();
 
 authRouter.post("/register", validateBody(createUserSchema), ctrlWrapper(register));
+
+authRouter.get("/verify/:verificationToken", ctrlWrapper(verify));
+
+authRouter.post("/verify", validateBody(verifyUserSchema), ctrlWrapper(resendVerify));
 
 authRouter.post("/login", validateBody(createUserSchema), ctrlWrapper(login));
 

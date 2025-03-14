@@ -13,3 +13,7 @@ export const updateSubscriptionSchema = Joi.object({
 export const updateAvatarSchema = Joi.object({
     avatarURL: Joi.string()
 })
+
+export const verifyUserSchema = Joi.object({
+    email: Joi.string().pattern(emailRegex).required(),
+})

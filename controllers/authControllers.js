@@ -1,4 +1,4 @@
-import { addUser, getUser, loginUser, logoutUser, updateUserAvatar, updateUserSubscription } from "../services/authServices.js";
+import { addUser, getUser, loginUser, logoutUser, resendVerifyEmail, updateUserAvatar, updateUserSubscription, verifyUser } from "../services/authServices.js";
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -14,6 +14,26 @@ export const register = async (req, res) => {
         }
     });
 };
+
+export const verify = async (req, res) => {
+    const { verificationToken } = req.params;
+
+    await verifyUser(verificationToken);
+
+    res.json({
+        message: "Email verified successfully"
+    })
+}; 
+
+export const resendVerify = async (req, res) => {
+    const { email } = req.body;
+
+    await resendVerifyEmail(email)
+
+    res.json({
+        message: "Verification email sent"
+    })
+}
 
 export const login = async (req, res) => {
     const result = await loginUser(req.body)
